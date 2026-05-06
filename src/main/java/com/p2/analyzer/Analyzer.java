@@ -113,3 +113,24 @@ public class Analyzer {
         if (ua.contains("Fedora")) return "Fedora";
         return "Linux, outros";
     }
+
+// opcao 4
+    public static void mediaPost(List<LogEntry> entradas) {
+        long soma = 0;
+        int qtd = 0;
+
+        for (LogEntry e : entradas) {
+            if (e.getMethod().equals("POST") && e.isSuccess() && e.getDateTime().getYear() == 2021) {
+                soma += e.getResponseSize();
+                qtd++;
+            }
+        }
+
+        if (qtd == 0) {
+            System.out.println("Nenhum POST encontrado em 2021.");
+            return;
+        }
+
+        System.out.printf("Media POST 2021: %.2f bytes%n", (double) soma / qtd);
+    }
+}
