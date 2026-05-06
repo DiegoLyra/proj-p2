@@ -17,32 +17,27 @@ public class LogEntry {
     public LogEntry(String ip, String userId, LocalDateTime dateTime,
                     String method, String resource, int statusCode,
                     long responseSize, String referer, String userAgent) {
-        this.ip = ip;
-        this.userId = userId;
-        this.dateTime = dateTime;
-        this.method = method;
-        this.resource = resource;
-        this.statusCode = statusCode;
+        this.ip        = ip;
+        this.userId    = userId;
+        this.dateTime  = dateTime;
+        this.method    = method;
+        this.resource  = resource;
+        this.statusCode  = statusCode;
         this.responseSize = responseSize;
-        this.referer = referer;
+        this.referer   = referer;
         this.userAgent = userAgent;
     }
 
-    public boolean isSuccess() {
-        return statusCode >= 200 && statusCode <= 299;
-    }
+    public boolean isSuccess()  { return statusCode >= 200 && statusCode <= 299; }
+    public boolean isNotFound() { return statusCode >= 400 && statusCode <= 499; }
 
-    public boolean isNotFound() {
-        return statusCode >= 400 && statusCode <= 499;
-    }
-
-    public String getIp() { return ip; }
-    public String getUserId() { return userId; }
+    public String getIp()           { return ip; }
+    public String getUserId()       { return userId; }
     public LocalDateTime getDateTime() { return dateTime; }
-    public String getMethod() { return method; }
-    public String getResource() { return resource; }
-    public int getStatusCode() { return statusCode; }
-    public long getResponseSize() { return responseSize; }
-    public String getReferer() { return referer; }
-    public String getUserAgent() { return userAgent; }
+    public String getMethod()       { return method; }
+    public String getResource()     { return resource; }
+    public int getStatusCode()      { return statusCode; }
+    public long getResponseSize()   { return responseSize; }
+    public String getReferer()      { return referer; }
+    public String getUserAgent()    { return userAgent; }
 }
