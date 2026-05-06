@@ -44,3 +44,72 @@ public class Analyzer {
             System.out.println("Erro: " + ex.getMessage());
         }
     }
+    
+    // opcao 2
+    public static void naoRespondidosNovembro(List<LogEntry> entradas) {
+        criarPasta();
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(Paths.get(PASTA, "naoRespondidosNovembro.txt").toFile()));
+
+            for (LogEntry e : entradas) {
+                if (e.isNotFound() && e.getDateTime().getMonthValue() == 11 && e.getDateTime().getYear() == 2021) {
+                    bw.write(e.getStatusCode() + " \"" + e.getReferer() + "\" Nov/2021");
+                    bw.newLine();
+                }
+            }
+
+            bw.close();
+            System.out.println("naoRespondidosNovembro.txt gerado.");
+
+        } catch (IOException ex) {
+            System.out.println("Erro: " + ex.getMessage());
+        }
+    }
+
+    // opcao 3
+    public static void sistemasOperacionais(List<LogEntry> entradas) {
+        criarPasta();
+
+        Map<String, Integer> contagem = new HashMap<>();
+        contagem.put("Windows", 0);
+        contagem.put("Macintosh", 0);
+        contagem.put("Ubuntu", 0);
+        contagem.put("Fedora", 0);
+        contagem.put("Mobile", 0);
+        contagem.put("Linux, outros", 0);
+
+        int total = 0;
+
+        for (LogEntry e : entradas) {
+            if (e.getDateTime().getYear() != 2021) continue;
+            String so = detectarSO(e.getUserAgent());
+            contagem.put(so, contagem.get(so) + 1);
+            total++;
+        }
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(Paths.get(PASTA, "sistemasOperacionais.txt").toFile()));
+
+            for (Map.Entry<String, Integer> entry : contagem.entrySet()) {
+                double pct = total > 0 ? (entry.getValue() * 100.0) / total : 0;
+                bw.write(entry.getKey() + " " + String.format("%.4f", pct));
+                bw.newLine();
+            }
+
+            bw.close();
+            System.out.println("sistemasOperacionais.txt gerado.");
+
+        } catch (IOException ex) {
+            System.out.println("Erro: " + ex.getMessage());
+        }
+    }
+
+    private static String detectarSO(String ua) {
+        if (ua.contains("Android") || ua.contains("Mobile")) return "Mobile";
+        if (ua.contains("Windows")) return "Windows";
+        if (ua.contains("Macintosh")) return "Macintosh";
+        if (ua.contains("Ubuntu")) return "Ubuntu";
+        if (ua.contains("Fedora")) return "Fedora";
+        return "Linux, outros";
+    }
