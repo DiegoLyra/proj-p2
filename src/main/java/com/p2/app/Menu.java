@@ -14,7 +14,7 @@ public class Menu {
     //scanner para ler o que o usuario digitou
     private Scanner scanner;
 
-    public Menu(List<LogEntry> etradas){
+    public Menu(List<LogEntry> entradas){
         this.entradas = entradas;
         this.scanner = new Scanner(System.in);
     }
