@@ -1,4 +1,4 @@
-package com.p2.app;
+package br.upe.app;
 
 import br.upe.analyzer.Analyzer;
 import br.upe.data.LogEntry;
