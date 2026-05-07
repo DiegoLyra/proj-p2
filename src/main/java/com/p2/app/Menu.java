@@ -1,5 +1,6 @@
 package com.p2.app;
 
+import br.upe.analyzer.Analyzer;
 import br.upe.data.LogEntry;
 
 import java.util.List;
@@ -30,6 +31,15 @@ public class Menu {
             } catch (NumberFormatException e) {
                 System.out.println("Opcao invalida.");
                 continue;
+            }
+
+             switch(opcao) {
+                case 1 -> Analyzer.recursosGrandes(entradas);
+                case 2 -> Analyzer.naoRespondidosNovembro(entradas);
+                case 3 -> Analyzer.sistemasOperacionais(entradas);
+                case 4 -> Analyzer.mediaPost(entradas);
+                case 0 -> System.out.println("Encerrando o programa.");
+                default -> System.out.println("Opcao invalida.");
             }
         }
         scanner.close();   
