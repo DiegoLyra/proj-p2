@@ -1,3 +1,4 @@
+package com.p2.analyzer;
 import com.p2.data.LogEntry;
 
 import java.io.BufferedWriter;
