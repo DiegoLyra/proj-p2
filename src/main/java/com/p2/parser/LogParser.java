@@ -8,12 +8,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LogParser {
 
     private static final int NUM_THREADS = 4;
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);
+
+    // regex que captura todos os campos de uma linha do log
+    private static final Pattern LOG_PATTERN = Pattern.compile(
+        "(\\S+) \\S+ (\\S+) \\[(.*?)] \"(\\S+) (\\S+)[^\"]*\" (\\d{3}) (\\S+) \"(.*?)\" \"(.*?)\""
+    );
 
     public static List<LogEntry> loadFile(String filePath) {
         List<LogEntry> result = Collections.synchronizedList(new ArrayList<>());
@@ -59,9 +66,9 @@ public class LogParser {
 
         public ChunkReader(String filePath, long start, long end, List<LogEntry> result) {
             this.filePath = filePath;
-            this.start = start;
-            this.end = end;
-            this.result = result;
+            this.start    = start;
+            this.end      = end;
+            this.result   = result;
         }
 
         @Override
@@ -69,11 +76,9 @@ public class LogParser {
             try {
                 RandomAccessFile raf = new RandomAccessFile(filePath, "r");
 
-                // Se nao for o inicio do arquivo, avanca ate o proximo \n
-                // para evitar ler uma linha incompleta
                 if (start != 0) {
                     raf.seek(start - 1);
-                    String skip = raf.readLine();
+                    raf.readLine(); // descarta linha incompleta
                 }
 
                 long currentPos = raf.getFilePointer();
@@ -83,22 +88,17 @@ public class LogParser {
                     if (line == null) break;
 
                     LogEntry entry = parseLine(line);
-                    if (entry != null) {
-                        result.add(entry);
-                    }
+                    if (entry != null) result.add(entry);
 
                     currentPos = raf.getFilePointer();
                 }
 
-                // Se a thread nao for a ultima, termina na proxima \n
-                // apos o end para nao perder a ultima linha do chunk
+                // garante que a ultima linha do chunk nao seja perdida
                 if (raf.getFilePointer() >= end && raf.getFilePointer() < raf.length()) {
                     String lastLine = raf.readLine();
                     if (lastLine != null) {
                         LogEntry entry = parseLine(lastLine);
-                        if (entry != null) {
-                            result.add(entry);
-                        }
+                        if (entry != null) result.add(entry);
                     }
                 }
 
@@ -111,61 +111,20 @@ public class LogParser {
 
         private LogEntry parseLine(String line) {
             try {
-                // IP: tudo antes do primeiro espaco
-                int pos = line.indexOf(' ');
-                String ip = line.substring(0, pos);
+                Matcher m = LOG_PATTERN.matcher(line);
+                if (!m.find()) return null;
 
-                // Pula " - "
-                pos = line.indexOf(' ', pos + 1);
+                String ip           = m.group(1);
+                String userId       = m.group(2);
+                LocalDateTime dt    = LocalDateTime.parse(m.group(3), FORMATTER);
+                String method       = m.group(4);
+                String resource     = m.group(5);
+                int statusCode      = Integer.parseInt(m.group(6));
+                long responseSize   = m.group(7).equals("-") ? 0 : Long.parseLong(m.group(7));
+                String referer      = m.group(8);
+                String userAgent    = m.group(9);
 
-                // userId: entre o terceiro e quarto espaco
-                int userStart = pos + 1;
-                pos = line.indexOf(' ', userStart);
-                String userId = line.substring(userStart, pos);
-
-                // Data: entre '[' e ']'
-                int dateStart = line.indexOf('[', pos) + 1;
-                int dateEnd = line.indexOf(']', dateStart);
-                String dateStr = line.substring(dateStart, dateEnd);
-                LocalDateTime dateTime = LocalDateTime.parse(dateStr, FORMATTER);
-
-                // Requisicao: entre as primeiras aspas apos a data
-                int reqStart = line.indexOf('"', dateEnd) + 1;
-                int reqEnd = line.indexOf('"', reqStart);
-                String request = line.substring(reqStart, reqEnd);
-
-                // method e resource da requisicao
-                String method = "";
-                String resource = "";
-                if (!request.isEmpty() && request.contains(" ")) {
-                    String[] reqParts = request.split(" ");
-                    method = reqParts[0];
-                    resource = reqParts.length > 1 ? reqParts[1] : "";
-                }
-
-                // Status e tamanho: apos as aspas da requisicao
-                String rest = line.substring(reqEnd + 2).trim();
-                String[] parts = rest.split(" ");
-                int statusCode = Integer.parseInt(parts[0]);
-                long responseSize = 0;
-                if (!parts[1].equals("-")) {
-                    responseSize = Long.parseLong(parts[1]);
-                }
-
-                // Referer: entre as proximas aspas
-                int refStart = line.indexOf('"', reqEnd + 1) + 1;
-                int refEnd = line.indexOf('"', refStart);
-                String referer = line.substring(refStart, refEnd);
-
-                // UserAgent: entre as ultimas aspas
-                int uaStart = line.indexOf('"', refEnd + 1) + 1;
-                int uaEnd = line.lastIndexOf('"');
-                String userAgent = "";
-                if (uaStart < uaEnd) {
-                    userAgent = line.substring(uaStart, uaEnd);
-                }
-
-                return new LogEntry(ip, userId, dateTime, method, resource,
+                return new LogEntry(ip, userId, dt, method, resource,
                         statusCode, responseSize, referer, userAgent);
 
             } catch (Exception e) {
@@ -174,5 +133,3 @@ public class LogParser {
         }
     }
 }
-
-
