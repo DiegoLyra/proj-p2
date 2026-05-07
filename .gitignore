@@ -1,0 +1,27 @@
+.env
+target/
+release.properties
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!/src/main/resources/
+.settings/
+.project
+.classpath
+.factorypath
+bin/
+.vscode/
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
