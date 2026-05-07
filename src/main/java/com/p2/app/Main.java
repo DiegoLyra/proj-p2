@@ -1,7 +1,7 @@
-package br.upe.app;
+package com.p2.app;
 
-import br.upe.data.LogEntry;
-import br.upe.parser.LogParser;
+import com.p2.data.LogEntry;
+import com.p2.parser.LogParser;
 
 import java.util.List;
 

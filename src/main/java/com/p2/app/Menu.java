@@ -1,7 +1,7 @@
-package br.upe.app;
+package com.p2.app;
 
-import br.upe.analyzer.Analyzer;
-import br.upe.data.LogEntry;
+import com.p2.analyzer.Analyzer;
+import com.p2.data.LogEntry;
 
 import java.util.List;
 import java.util.Scanner;
@@ -27,7 +27,7 @@ public class Menu {
             System.out.println("| ");
 
             try{
-                opcao = Intereger.parseInt(scanner.nextLine().trim());
+                opcao = Integer.parseInt(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
                 System.out.println("Opcao invalida.");
                 continue;
