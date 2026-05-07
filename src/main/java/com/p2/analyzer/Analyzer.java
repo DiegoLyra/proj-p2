@@ -1,4 +1,3 @@
-package com.p2.analyzer;
 import com.p2.data.LogEntry;
 
 import java.io.BufferedWriter;
@@ -23,7 +22,7 @@ public class Analyzer {
         }
     }
 
-    // opcao 1
+    // filtra logs com sucesso e resposta maior que 2000 bytes
     public static void recursosGrandes(List<LogEntry> entradas) {
         criarPasta();
 
@@ -44,8 +43,8 @@ public class Analyzer {
             System.out.println("Erro: " + ex.getMessage());
         }
     }
-    
-    // opcao 2
+
+    // filtra 404 de novembro de 2021
     public static void naoRespondidosNovembro(List<LogEntry> entradas) {
         criarPasta();
 
@@ -67,7 +66,7 @@ public class Analyzer {
         }
     }
 
-    // opcao 3
+    // conta acessos por SO em 2021 e calcula percentual
     public static void sistemasOperacionais(List<LogEntry> entradas) {
         criarPasta();
 
@@ -84,7 +83,7 @@ public class Analyzer {
         for (LogEntry e : entradas) {
             if (e.getDateTime().getYear() != 2021) continue;
             String so = detectarSO(e.getUserAgent());
-            contagem.put(so, contagem.get(so) + 1);
+            contagem.put(so, contagem.get(so) + 1); // incrementa o SO detectado
             total++;
         }
 
@@ -105,6 +104,8 @@ public class Analyzer {
         }
     }
 
+    // lê o user-agent e retorna o SO correspondente
+    // Mobile vem primeiro pois user-agents Android costumam conter "Linux" também
     private static String detectarSO(String ua) {
         if (ua.contains("Android") || ua.contains("Mobile")) return "Mobile";
         if (ua.contains("Windows")) return "Windows";
@@ -114,7 +115,7 @@ public class Analyzer {
         return "Linux, outros";
     }
 
-// opcao 4
+    // calcula media do tamanho das respostas POST em 2021 — só imprime, não grava arquivo
     public static void mediaPost(List<LogEntry> entradas) {
         long soma = 0;
         int qtd = 0;
@@ -131,6 +132,7 @@ public class Analyzer {
             return;
         }
 
+        // cast pra double necessario, sem ele a divisao seria inteira
         System.out.printf("Media POST 2021: %.2f bytes%n", (double) soma / qtd);
     }
 }
